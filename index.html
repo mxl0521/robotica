@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <title>Robot Control UI</title>
+    <link rel="stylesheet" href="./style.css?v=20260319-16" />
+  </head>
+  <body>
+    <div class="ambient ambient-a" aria-hidden="true"></div>
+    <div class="ambient ambient-b" aria-hidden="true"></div>
+    <div class="grid-overlay" aria-hidden="true"></div>
+
+    <div class="app-shell" data-mobile-view="vision">
+      <header class="panel topbar">
+        <div class="brand">
+          <p class="overline">Robot Control UI</p>
+          <h1 id="robotName">LATON</h1>
+          <p class="subtitle">
+            Mission control dashboard for live vision, telemetry, and direct robot commands.
+          </p>
+        </div>
+
+        <div class="topbar-meta">
+          <div class="meta-chip live" id="connectionPill">
+            <span class="meta-label">Status</span>
+            <div class="meta-value-row">
+              <span class="chip-dot" id="connectionDot"></span>
+              <strong id="connectionText">ONLINE</strong>
+            </div>
+          </div>
+          <div class="meta-chip">
+            <span class="meta-label">Mode</span>
+            <strong id="modeChipValue">AUTO</strong>
+          </div>
+        </div>
+      </header>
+
+      <nav class="mobile-nav" aria-label="Mobile sections">
+        <button class="mobile-nav-btn is-active" data-mobile-view="vision" type="button">Vision</button>
+        <button class="mobile-nav-btn" data-mobile-view="drive" type="button">Drive</button>
+        <button class="mobile-nav-btn" data-mobile-view="status" type="button">Status</button>
+        <button class="mobile-nav-btn" data-mobile-view="logs" type="button">Logs</button>
+      </nav>
+
+      <main class="dashboard">
+        <section class="panel camera-panel" data-mobile-section="vision">
+          <div class="panel-head">
+            <div>
+              <p class="panel-kicker">Main Feed</p>
+              <h2>Live Vision</h2>
+            </div>
+
+            <div class="head-actions">
+              <button id="refreshBtn" class="ghost-btn" type="button">Refresh</button>
+              <button id="mockToggle" class="ghost-btn mock-toggle" type="button" aria-pressed="false">
+                <span id="mockToggleText">Mock Off</span>
+              </button>
+            </div>
+          </div>
+
+          <div class="camera-stage" id="videoFrame">
+            <div class="mock-stream" id="mockStream" aria-hidden="true"></div>
+            <img id="streamImage" alt="Robot live feed" hidden />
+          </div>
+
+          <div class="stream-config">
+            <input
+              id="streamUrlInput"
+              type="url"
+              placeholder="http://robot-ip:5000"
+              autocomplete="off"
+            />
+            <button id="applyStreamBtn" class="ghost-btn" type="button">Apply Stream</button>
+          </div>
+          <p class="hint" id="streamHint">Use an MJPEG or image snapshot stream URL.</p>
+
+          <div class="camera-summary">
+            <div class="summary-card">
+              <span>Mode</span>
+              <strong id="modeValue">AUTO</strong>
+            </div>
+            <div class="summary-card">
+              <span>Connection</span>
+              <strong id="statusConnectionValue">Online</strong>
+            </div>
+            <div class="summary-card">
+              <span>Distance</span>
+              <strong id="distanceValue">1.8 m</strong>
+            </div>
+          </div>
+        </section>
+
+        <aside class="panel side-panel" data-mobile-section="status">
+          <div class="panel-head compact">
+            <div>
+              <p class="panel-kicker">Telemetry</p>
+              <h2>Runtime Overview</h2>
+            </div>
+          </div>
+
+          <div class="hero-stat">
+            <span class="hero-stat-label">Current Mission</span>
+            <strong id="behaviorValue">Autonomous Patrol</strong>
+            <p id="missionSummary">Tracking Charging Dock at 1.8 m.</p>
+          </div>
+
+          <div class="mini-grid">
+            <article class="mini-card">
+              <span>Target</span>
+              <strong id="targetValue">Charging Dock</strong>
+            </article>
+            <article class="mini-card">
+              <span>Connection</span>
+              <strong id="connectionStatValue">Online</strong>
+            </article>
+            <article class="mini-card">
+              <span>Control</span>
+              <strong id="mockModeValue">Live</strong>
+            </article>
+          </div>
+
+          <div class="route-card">
+            <div class="route-header">
+              <span>Control Notes</span>
+              <strong id="routeStateValue">System Ready</strong>
+            </div>
+            <ul class="route-list">
+              <li class="done" id="routeModeValue">Mode AUTO ready</li>
+              <li class="active" id="routeTargetValue">Target Charging Dock</li>
+              <li id="routeMockValue">Live stream configured</li>
+            </ul>
+          </div>
+        </aside>
+
+        <section class="panel control-panel" data-mobile-section="drive">
+          <div class="panel-head">
+            <div>
+              <p class="panel-kicker">Command Deck</p>
+              <h2>Drive Controls</h2>
+            </div>
+            <span class="panel-note">Center Stop stays strongest for fast intervention.</span>
+          </div>
+
+          <div class="mode-strip toggle-set" id="modeSegment">
+            <button class="mode-tab segment active" data-mode="AUTO" type="button">AUTO</button>
+            <button class="mode-tab segment" data-mode="MANUAL" type="button">MANUAL</button>
+            <button class="mode-tab segment" data-mode="AVOID" type="button">AVOID</button>
+          </div>
+
+          <div class="control-layout">
+            <div class="dpad">
+              <div></div>
+              <button class="nav-btn nav-primary motion" data-command="forward" type="button">Forward</button>
+              <div></div>
+              <button class="nav-btn motion" data-command="left" type="button">Left</button>
+              <button class="nav-btn stop motion" data-command="stop" type="button">Stop</button>
+              <button class="nav-btn motion" data-command="right" type="button">Right</button>
+              <div></div>
+              <button class="nav-btn nav-primary motion" data-command="backward" type="button">Backward</button>
+              <div></div>
+            </div>
+
+            <div class="quick-actions">
+              <button class="action-tile active" data-action="hello" type="button">
+                <span class="tile-label">Preset</span>
+                <strong>HELLO</strong>
+              </button>
+              <button class="action-tile" data-action="pushup" type="button">
+                <span class="tile-label">Preset</span>
+                <strong>PUSHUP</strong>
+              </button>
+              <button class="action-tile" data-system="start" type="button">
+                <span class="tile-label">System</span>
+                <strong>START ROBOT</strong>
+              </button>
+              <button class="action-tile" data-system="stop" type="button">
+                <span class="tile-label">System</span>
+                <strong>STOP ROBOT</strong>
+              </button>
+            </div>
+          </div>
+        </section>
+
+        <section class="panel actions-panel" data-mobile-section="drive">
+          <div class="panel-head">
+            <div>
+              <p class="panel-kicker">Safety</p>
+              <h2>System Actions</h2>
+            </div>
+          </div>
+
+          <div class="system-grid">
+            <button class="wide-btn accent-btn" data-system="start" type="button">Start Robot</button>
+            <button class="wide-btn ghost-btn" data-system="stop" type="button">Stop Robot</button>
+            <button id="refreshQuickBtn" class="wide-btn ghost-btn" type="button">Refresh Status</button>
+            <button class="wide-btn danger-btn" id="shutdownBtn" data-system="shutdown" type="button">
+              Hold to Shutdown
+            </button>
+          </div>
+
+          <div class="hold-track">
+            <div class="hold-fill" id="holdBar"></div>
+          </div>
+          <p class="hint">Press and hold for 2 seconds to send the shutdown command.</p>
+        </section>
+
+        <section class="panel log-panel" data-mobile-section="logs">
+          <div class="panel-head">
+            <div>
+              <p class="panel-kicker">Activity</p>
+              <h2>Event Timeline</h2>
+            </div>
+            <button id="clearLogBtn" class="ghost-btn" type="button">Clear</button>
+          </div>
+
+          <ul class="event-log" id="eventLog"></ul>
+        </section>
+      </main>
+    </div>
+
+    <script src="./app.js?v=20260319-16"></script>
+  </body>
+</html>
